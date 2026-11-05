@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Архитектура номенклатуры — Стул ученический</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f5;
+    padding: 10px;
+    font-size: 12px;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .page {
+    max-width: 1600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    height: calc(100vh - 20px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header h1 { font-size: 18px; }
+  .header .sub { font-size: 11px; opacity: 0.9; }
+
+  .base-block {
+    background: #2c3e50;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .base-block span { color: #f1c40f; }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .col {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+  }
+  .col-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #2c3e50;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #3498db;
+    text-align: center;
+  }
+
+  .model-card {
+    background: white;
+    border-left: 4px solid #e74c3c;
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  .model-card h4 {
+    font-size: 12px;
+    color: #2c3e50;
+    margin-bottom: 3px;
+  }
+  .model-card .comp {
+    font-size: 11px;
+    color: #7f8c8d;
+    margin-bottom: 4px;
+  }
+  .model-card .sku {
+    font-size: 11px;
+    font-weight: bold;
+    color: #e74c3c;
+  }
+
+  .frame-series {
+    background: white;
+    border-left: 4px solid #3498db;
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  .frame-series h4 {
+    font-size: 12px;
+    color: #2c3e50;
+    margin-bottom: 3px;
+  }
+  .frame-series .pipe {
+    font-size: 10px;
+    color: #7f8c8d;
+    font-style: italic;
+    margin-bottom: 4px;
+  }
+  .frame-series .rg {
+    font-size: 11px;
+    color: #555;
+  }
+  .frame-series .rg strong { color: #3498db; }
+
+  .color-block {
+    background: white;
+    border-left: 4px solid #f39c12;
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  .color-block h4 {
+    font-size: 12px;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  .color-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    font-size: 10px;
+  }
+  .color-list div {
+    padding: 3px 5px;
+    background: #f8f9fa;
+    border-radius: 3px;
+    border-left: 3px solid #95a5a6;
+  }
+
+  .combo-section {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .combo-section h3 {
+    font-size: 13px;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .combo-table {
+    width: 100%;
+    background: white;
+    border-radius: 5px;
+    overflow: hidden;
+    font-size: 11px;
+  }
+  .combo-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .combo-table th {
+    background: #3498db;
+    color: white;
+    padding: 5px 8px;
+    text-align: left;
+    font-size: 11px;
+  }
+  .combo-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #eee;
+  }
+  .combo-table tr:last-child td { border-bottom: none; }
+  .combo-table .total {
+    background: #f39c12;
+    color: white;
+    font-weight: bold;
+  }
+  .combo-table .total td { color: white; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .stat {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 22px;
+    font-weight: bold;
+  }
+  .stat .lbl {
+    font-size: 10px;
+    opacity: 0.9;
+  }
+
+  .formula {
+    background: #fff3cd;
+    border: 2px dashed #f39c12;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 12px;
+    color: #2c3e50;
+  }
+  .formula strong { color: #e74c3c; font-size: 14px; }
+
+  @media print {
+    body { background: white; }
+    .page { box-shadow: none; height: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <h1>🪑 Архитектура номенклатуры: Стул ученический</h1>
+      <div class="sub">1С:УТ 11.5 • Составные изделия • КТРУ 44-ФЗ</div>
+    </div>
+    <div class="sub">Версия 2.0</div>
+  </div>
+
+  <div class="base-block">
+    📦 Базовая номенклатура: <span>«Стул ученический»</span> (1 запись) → Тип: Товар → Характеристики + Спецификации
+  </div>
+
+  <div class="main-grid">
+
+    <!-- КОЛОНКА 1: МОДЕЛИ ПЛАСТИКА -->
+    <div class="col">
+      <div class="col-title">🪑 МОДЕЛИ ПЛАСТИКА (компоненты)</div>
+
+      <div class="model-card">
+        <h4>Сота СТАРТ (без ручек)</h4>
+        <div class="comp">2 компонента: Каркас + Сиденье цельнолитое</div>
+        <div class="sku">9 цветов × 65 каркасов = 585 SKU</div>
+      </div>
+
+      <div class="model-card">
+        <h4>Сота СТАРТ (с ручками)</h4>
+        <div class="comp">2 компонента: Каркас + Сиденье цельнолитое</div>
+        <div class="sku">9 цветов × 65 каркасов = 585 SKU</div>
+      </div>
+
+      <div class="model-card">
+        <h4>Сота БОЛЬШОЕ</h4>
+        <div class="comp">3 компонента: Каркас + Сиденье + Спинка</div>
+        <div class="sku">4 цвета × 65 каркасов = 260 SKU</div>
+      </div>
+
+      <div class="model-card">
+        <h4>Сота ЮНИОР</h4>
+        <div class="comp">2 компонента: Каркас «Новая парта» + Комплект сиденье+спинка</div>
+        <div class="sku">12 цветов × 5 каркасов = 60 SKU</div>
+      </div>
+
+      <div class="model-card">
+        <h4>Ковш большой</h4>
+        <div class="comp">2 компонента: Каркас РГ 4-6 + Сиденье цельнолитое</div>
+        <div class="sku">4 цвета × 5 каркасов = 20 SKU</div>
+      </div>
+
+      <div class="model-card">
+        <h4>Сота ЛАБ</h4>
+        <div class="comp">2 компонента: Каркас Rotondo РГ 4-6 + Сиденье цельнолитое</div>
+        <div class="sku">11 цветов × 5 каркасов = 55 SKU</div>
+      </div>
+
+      <div class="model-card">
+        <h4>Ковш малый</h4>
+        <div class="comp">2 компонента: Стул лабораторный (газ-лифт) + Сиденье</div>
+        <div class="sku">1 цвет × 5 каркасов = 5 SKU</div>
+      </div>
+    </div>
+
+    <!-- КОЛОНКА 2: МЕТАЛЛОКАРКАСЫ -->
+    <div class="col">
+      <div class="col-title">🔩 МЕТАЛЛОКАРКАСЫ (13 геометрий × 5 цветов = 65)</div>
+
+      <div class="frame-series">
+        <h4>🔵 Серия ROTONDO</h4>
+        <div class="pipe">Круглая труба Ø32/28 мм, Ø20/15 мм</div>
+        <div class="rg"><strong>4 ростовые группы:</strong> РГ 2-4, РГ 3-5, РГ 4-6, РГ 5-7</div>
+      </div>
+
+      <div class="frame-series">
+        <h4>🟦 Серия КЛАССИК</h4>
+        <div class="pipe">Квадратная труба 25×25 / 20×20 мм</div>
+        <div class="rg"><strong>3 ростовые группы:</strong> РГ 3-5, РГ 4-6, РГ 5-7</div>
+      </div>
+
+      <div class="frame-series">
+        <h4>🟩 Серия ГП</h4>
+        <div class="pipe">Плоскоовальная труба 30×50 / 24×45 мм</div>
+        <div class="rg"><strong>3 ростовые группы:</strong> РГ 3-5, РГ 4-6, РГ 5-7</div>
+      </div>
+
+      <div class="frame-series">
+        <h4>🟧 Серия НОВАЯ ПАРТА</h4>
+        <div class="pipe">Плоскоовальная труба 30×50 / 45×25 мм</div>
+        <div class="rg"><strong>3 ростовые группы:</strong> РГ 3-5, РГ 4-6, РГ 5-7</div>
+      </div>
+
+      <div class="color-block">
+        <h4>🎨 Цвета каркаса (5 RAL)</h4>
+        <div class="color-list">
+          <div>🔘 RAL 7040 Серый</div>
+          <div>🔴 RAL 3002 Красный</div>
+          <div>🟢 RAL 6032 Зеленый</div>
+          <div>🔵 RAL 5002 Синий</div>
+          <div>🟠 RAL 2008 Оранжевый</div>
+        </div>
+      </div>
+
+      <div class="formula">
+        <strong>13 геометрий × 5 цветов = 65 вариантов каркаса</strong><br>
+        + нестандартные цвета и 2-цветные схемы (под заказ)
+      </div>
+    </div>
+
+    <!-- КОЛОНКА 3: ЦВЕТА ПЛАСТИКА + КОМБИНАЦИИ -->
+    <div class="col">
+      <div class="col-title">🎨 ЦВЕТА ПЛАСТИКА (по моделям)</div>
+
+      <div class="color-block">
+        <h4>Сота СТАРТ — 9 цветов</h4>
+        <div class="color-list">
+          <div>RAL 2008 Оранжевый</div>
+          <div>RAL 5002 Синий</div>
+          <div>RAL 5003 Сапфировый</div>
+          <div>RAL 6029 Зеленый</div>
+          <div>RAL 7040 Серый</div>
+          <div>RAL 1001 Бежевый</div>
+          <div>RAL 9003 Белый</div>
+          <div>RAL 5024 Голубой</div>
+          <div>Pantone 41/559 Мятный</div>
+        </div>
+      </div>
+
+      <div class="color-block">
+        <h4>Сота ЮНИОР — 12 цветов</h4>
+        <div class="color-list">
+          <div>+ RAL 7046 Телегрей 2</div>
+          <div>+ RAL 9017 Чёрный</div>
+          <div>+ RAL 9001 Мятный</div>
+          <div>…остальные как у СТАРТ</div>
+        </div>
+      </div>
+
+      <div class="color-block">
+        <h4>Сота ЛАБ — 11 цветов</h4>
+        <div class="color-list">
+          <div>Как ЮНИОР, без RAL 9001</div>
+        </div>
+      </div>
+
+      <div class="combo-section">
+        <h3>📊 МАТРИЦА КОМБИНАЦИЙ</h3>
+        <div class="combo-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Модель</th>
+                <th>Комп.</th>
+                <th>Каркасов</th>
+                <th>Цветов</th>
+                <th>SKU</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Сота СТАРТ без ручек</td><td>2</td><td>65</td><td>9</td><td><b>585</b></td></tr>
+              <tr><td>Сота СТАРТ с ручками</td><td>2</td><td>65</td><td>9</td><td><b>585</b></td></tr>
+              <tr><td>Сота БОЛЬШОЕ</td><td>3</td><td>65</td><td>4</td><td><b>260</b></td></tr>
+              <tr><td>Сота ЮНИОР</td><td>2</td><td>5</td><td>12</td><td><b>60</b></td></tr>
+              <tr><td>Ковш большой</td><td>2</td><td>5</td><td>4</td><td><b>20</b></td></tr>
+              <tr><td>Сота ЛАБ</td><td>2</td><td>5</td><td>11</td><td><b>55</b></td></tr>
+              <tr><td>Ковш малый</td><td>2</td><td>5</td><td>1</td><td><b>5</b></td></tr>
+              <tr class="total"><td colspan="4">ИТОГО уникальных SKU</td><td>~1 570</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="num">1</div>
+      <div class="lbl">Запись в справочнике<br>номенклатуры</div>
+    </div>
+    <div class="stat">
+      <div class="num">13</div>
+      <div class="lbl">Геометрий<br>каркаса</div>
+    </div>
+    <div class="stat">
+      <div class="num">7</div>
+      <div class="lbl">Моделей<br>пластика</div>
+    </div>
+    <div class="stat">
+      <div class="num">~1 570</div>
+      <div class="lbl">Уникальных SKU<br>(комбинаций)</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
